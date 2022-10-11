@@ -1,8 +1,7 @@
 var express = require('express')
 const router = express.Router();
 const Validator = require('fastest-validator')
-const {payment, orderItem, sequelize } = require('../models');
-const order = require('../models/order');
+const {payment, orderItem } = require('../models');
 
 const v = new Validator();
 
@@ -39,8 +38,8 @@ router.post('/', async(req,res,next) => {
          if(!findData){
             res.status(404).send({
                 status : 'error',
-                message : `data orderId with id ${req.body.orderId} not found`
-            })
+                message : `data order id with id ${req.body.orderId} not found`
+            }) 
          }
          const reqData = {
             orderId : req.body.orderId,
@@ -52,26 +51,50 @@ router.post('/', async(req,res,next) => {
             return res.status(200).json(data)
         
     } catch (error) {
-        res.send(error)
+        next(error)
     }
 })
 
 // update data payment with id
 router.put('/:id', async(req,res,next) => {
     try {
+        const schema = {
+            orderId : 'number',
+            payment_type : {
+                type : 'enum',
+                values : ['cash', 'non cash']
+            },
+            paid_amount : 'number'
+        }
+        const validate = await v.validate(req.body, schema);
+        if(validate.length){
+            res.status(404).send({
+                status : 'error',
+                message : 'error'
+            })
+        }
+
+        const dataOrderId = await orderItem.findOne({where : {orderId : req.body.orderId}})
+        if(!dataOrderId){
+            res.status(404).send({
+                status : 'error',
+                message : `order id with id ${req.body.orderId} not found`
+            })
+        }
+        console.log(dataOrderId)
        const {id} = req.params;
-       const findData = await payment.findByPk(id)
+       let findData = await payment.findByPk(id)
 
        if(!findData){
         res.status(404).send({
             status : 'error',
             message :  `data with id ${id} not found`
         })
+
         res.status(200).send(findData)
         
-        const data = await findData.update(req.body)
-        res.status(200).send(data)
-        console.log(findData)
+        const dataPayment = await findData.update(req.body)
+        res.status(200).send(dataPayment)
        }
     } catch (error) {
         next(error)
