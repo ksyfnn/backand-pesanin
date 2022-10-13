@@ -13,9 +13,8 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       order.hasMany(models.orderItem,{
         foreignKey : 'orderId',
-        as : 'name'
       })
-      order.hasMany(models.payment, {
+      order.hasMany(models.payment,{
         foreignKey : 'orderId'
       })
     }

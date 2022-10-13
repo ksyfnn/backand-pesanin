@@ -65,9 +65,6 @@ router.put('/:id', async(req,res,next) => {
                 message : `data orderItem with id ${id} not found`
             })
         }
-        res.status(200).send(findDataId)
-        console.log(findDataId)
-
         const findDataMenu = await menu.findOne({where : {id: req.body.menuId}})
         // query harga menu x quantity
         const amount = findDataMenu.price * req.body.qty;
@@ -90,15 +87,14 @@ router.get('/', async(req,res,next) => {
     try {
         const showAll = await orderItem.findAll({
             include : [{
-                model : order,
-                model : menu
+                model : order
             }]
         })
         // console.log(showAll)
         if(showAll.length === 0){
             res.status(505).send({
                 status : 'error',
-                message : 'database empty'
+                message : 'order item is empty'
             })
         }
         res.status(200).send(showAll)

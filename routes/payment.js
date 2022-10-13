@@ -58,22 +58,6 @@ router.post('/', async(req,res,next) => {
 // update data payment with id
 router.put('/:id', async(req,res,next) => {
     try {
-        const schema = {
-            orderId : 'number',
-            payment_type : {
-                type : 'enum',
-                values : ['cash', 'non cash']
-            },
-            paid_amount : 'number'
-        }
-        const validate = await v.validate(req.body, schema);
-        if(validate.length){
-            res.status(404).send({
-                status : 'error',
-                message : 'error'
-            })
-        }
-
         const dataOrderId = await orderItem.findOne({where : {orderId : req.body.orderId}})
         if(!dataOrderId){
             res.status(404).send({
@@ -90,8 +74,6 @@ router.put('/:id', async(req,res,next) => {
             status : 'error',
             message :  `data with id ${id} not found`
         })
-
-        res.status(200).send(findData)
         
         const dataPayment = await findData.update(req.body)
         res.status(200).send(dataPayment)
@@ -125,10 +107,15 @@ router.get('/', async(req,res,next) => {
     try {
         
         const showAll = await payment.findAll()
-        res.send(showAll)
+        if(showAll.length === 0){
+            res.status(404).send({
+                status : 'error',
+                message : 'payment is empty'
+            })
+        }
         
     } catch (error) {
-        res.send(error)
+        console.log(message.error)
     }
 })
 

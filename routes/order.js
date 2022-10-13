@@ -50,7 +50,6 @@ router.put('/:id', async (req, res, next) => {
                 message: `data order with id ${id} not found`
             })
         }
-        res.status(200).send(findDataId)
 
         const updateDataorder = await findDataId.update(req.body)
 
@@ -75,13 +74,10 @@ router.get('/', async (req, res, next) => {
         if (showAllData.length === 0) {
             res.status(404).send({
                 status: 'error',
-                message: `database empty`
+                message: 'order is empty'
             })
         }
         res.status(200).send(showAllData)
-        // const getOrderId = await orderItem.finOne({
-        //     wehre : {orderId : req.body.amount}
-        // })
     } catch (error) {
         res.send(error)
     }

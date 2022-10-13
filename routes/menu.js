@@ -10,10 +10,7 @@ router.post('/', async(req,res,next) => {
         const scheme = {                                                                     
             nameMenu : 'string',
             image : 'string',
-            category : {
-                type : 'enum',
-                 values : ['food', 'drink', 'dessert']
-            },
+            category : 'number',
             description : 'string|optional',
             rating : {
                 type : 'number',
@@ -34,7 +31,6 @@ router.post('/', async(req,res,next) => {
             const reqdata = req.body
             const data = await menu.create(reqdata);
             return res.status(200).json(data || message `data invalid`)
-            console.log(data.defaultValue.id)
     } catch (error) {
         res.send(error)
     }
@@ -45,27 +41,25 @@ router.put('/:id', async(req,res,next) => {
         const {id} = req.params;
 
         let findDataId = await menu.findByPk(id);
-
         if(!findDataId){
             res.status(404).send({
                 status : 'error',
                 message : `data Menu with id ${id} not found`
             })
         }
-        res.status(200).send(findDataId)
-
         const updateDataMenu = await findDataId.update(req.body)
-
-        if(!updateDataMenu.length){
+        
+        if(updateDataMenu.length){
             res.status(500).send({
                 status : 'error',
                 message : `data Menu with id ${id} cant be update, please
                 try again`
             })
         }
+        console.log(updateDataMenu)
         res.status(200).send(updateDataMenu)
     } catch (error) {
-        next(error)   
+        console.log(error.message)   
     }
 })
 
@@ -78,7 +72,7 @@ router.get('/', async(req,res,next) => {
         if(showAll.length === 0){
             res.status(505).send({
                 status : 'error',
-                message : 'database empty'
+                message : 'menu is empty'
             })
         }
         res.status(200).send(showAll)
@@ -101,7 +95,6 @@ router.get('/:id', async (req,res,next) => {
         }
 
         res.status(200).send(findData)
-    
         const showById = await menu.findOne({where: {id}})
         res.status(200).send(showById)
     } catch (error) {
