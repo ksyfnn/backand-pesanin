@@ -52,15 +52,6 @@ router.put('/:id', async (req, res, next) => {
         }
 
         const updateDataorder = await findDataId.update(req.body)
-
-        if (!updateDataorder.length) {
-            res.status(500).send({
-                status: 'error',
-                message: `data order with id ${id} cant be update, please
-                try again`
-            })
-        }
-
         res.status(200).send(updateDataorder)
     } catch (error) {
         next(error)
@@ -106,37 +97,9 @@ router.get('/:id', async (req, res, next) => {
 })
 
 // delete data with id
-router.delete('/:id', async (req, res, next) => {
-    try {
-        const { id } = req.params;
-
-        const findId = await order.findByPk(id)
-
-        if (!findId) {
-            res.status(404).send({
-                status: 'error',
-                message: `data with id ${id} not found`
-            })
-        }
-        const deleteDataId = await findId.destroy({
-            attributes : {
-                exclude : ['menuId']
-            }
-        })
-
-        if (!deleteDataId) {
-            res.status(500).send({
-                status: 'error',
-                message: `data order with id ${id} cant 
-                    deleted`
-            })
-        }
-        res.status(200).send({
-            status: 'ok',
-            message: `data order with id ${id} has been deleted`
-        })
-    } catch (error) {
-        res.send(error)
-    }
+router.delete('/', async(req,res,next) => {
+    const {id} = req.params
+    const deleteDataOrder = await order.destroy({where : {id}})
+    res.status(200).send(deleteDataOrder)
 })
 module.exports = router;

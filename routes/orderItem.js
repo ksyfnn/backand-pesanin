@@ -15,24 +15,25 @@ router.post('/', async(req,res,next) => {
         }
         
         const validate = await v.validate(req.body, schema);
-            if(validate.length){
-                res.status(404).send({
-                    status : 'error',
-                    message : validate
-                });
-            }
-            
-        const findDataOrder = await order.findOne({
-            where : {id : req.body.orderId}, raw : true
-        })
-
-        if(!findDataOrder){
+        if(validate.length){
             res.status(404).send({
+                status : 'error',
+                message : validate
+            });
+        }
+        
+        const findDataOrder = await order.findOne({
+            where : {id : req.body.orderId }, raw : true
+        })
+        console.log(findDataOrder)
+         
+        if(!findDataOrder){
+            return res.status(404).send({
                 status : 'error',
                 message :  `data order with id ${req.body.orderId} not found`
             })
         }
-
+        
             // get id menu
             const findDataMenu = await menu.findOne({where : {id: req.body.menuId}})
             // query harga menu x quantity
@@ -45,9 +46,11 @@ router.post('/', async(req,res,next) => {
                 amount: amount
             };
 
-            const data = await orderItem.create(reqData);
-            console.log(data.dataValues.id)
-            return res.status(200).json(data || message `data invalid`)
+            const data = await orderItem.bulkCreate(reqData);
+            return res.status(200).json({
+                message : 'succes',
+                data : data
+            })
     } catch (error) {
         next(error)
     }

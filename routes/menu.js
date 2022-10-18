@@ -28,11 +28,12 @@ router.post('/', async(req,res,next) => {
                     message : validate
                 });
             }
-            const reqdata = req.body
-            const data = await menu.create(reqdata);
-            return res.status(200).json(data || message `data invalid`)
+            const data = await menu.create(req.body);
+            return res.status(200).json({
+                data : data
+            })
     } catch (error) {
-        res.send(error)
+        next(error)
     }
 })
 // update data with id

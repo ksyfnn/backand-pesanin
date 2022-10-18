@@ -53,4 +53,9 @@ router.get('/:id', async(req,res,next) =>{
     }
 })
 
+router.get('/', async(req,res,netx) => {
+    const findAll = await categoryMenu.findAll()
+    res.send(findAll)
+})
+
 module.exports = router
