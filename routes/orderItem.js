@@ -8,43 +8,51 @@ const v = new Validator();
 // create Data 
 router.post('/', async(req,res,next) => {
     try {
+        let reqData = [];
         const schema = {
         orderId : 'number',
         menuId : 'number',
         qty : 'number',
         }
         
-        const validate = await v.validate(req.body, schema);
-        if(validate.length){
-            res.status(404).send({
-                status : 'error',
-                message : validate
-            });
-        }
-        
-        const findDataOrder = await order.findOne({
-            where : {id : req.body.orderId }, raw : true
-        })
-        console.log(findDataOrder)
-         
-        if(!findDataOrder){
-            return res.status(404).send({
-                status : 'error',
-                message :  `data order with id ${req.body.orderId} not found`
+
+        for(let i = 0; i < req.body.length; i++){
+            let validate = await v.validate(req.body[i], schema);
+            if(validate.length){
+                return res.status(404).send({
+                    status : 'error',
+                    message : validate
+                });
+            }
+            console.log('test');
+    
+            const findDataOrder = await order.findOne({
+                where : {id : req.body[i].orderId }, raw : true
             })
+            console.log('data order ',findDataOrder)
+             
+            if(!findDataOrder){
+                return res.status(404).send({
+                    status : 'error',
+                    message :  `data order with id ${req.body.orderId} not found`
+                })
+            }
+           
+                // get id menu
+                const findDataMenu = await menu.findOne({where : {id: req.body[i].menuId}})
+                // query harga menu x quantity
+                const amount = findDataMenu.price * req.body[i].qty;
+                // hasil akhir
+                const hasil = {
+                    orderId: req.body[i].orderId,
+                    menuId: req.body[i].menuId,
+                    qty: req.body[i].qty,
+                    amount: amount
+                };
+
+                reqData.push(hasil);
+            
         }
-        
-            // get id menu
-            const findDataMenu = await menu.findOne({where : {id: req.body.menuId}})
-            // query harga menu x quantity
-            const amount = findDataMenu.price * req.body.qty;
-            // hasil akhir
-            const reqData = {
-                orderId: req.body.orderId,
-                menuId: req.body.menuId,
-                qty: req.body.qty,
-                amount: amount
-            };
 
             const data = await orderItem.bulkCreate(reqData);
             return res.status(200).json({
@@ -119,7 +127,7 @@ router.get('/:id', async (req,res,next) => {
             })
         }
 
-        res.status(200).send(findData)
+        // res.status(200).send(findData)
     
         const showById = await orderItem.findOne({where: {id}})
         res.status(200).send(showById)

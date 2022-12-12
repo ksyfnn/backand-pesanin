@@ -113,9 +113,10 @@ router.get('/', async(req,res,next) => {
                 message : 'payment is empty'
             })
         }
+        res.status(200).send(showAll)
         
     } catch (error) {
-        console.log(message.error)
+        next(error)
     }
 })
 
