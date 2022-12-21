@@ -55,6 +55,7 @@ router.post('/', async(req,res,next) => {
         }
 
             const data = await orderItem.bulkCreate(reqData);
+            console.log(data)
             return res.status(200).json({
                 message : 'succes',
                 data : data
@@ -162,6 +163,21 @@ router.delete('/:id', async(req,res,next) => {
                 status : 'ok',
                 message : `data orderItem with id ${id} has been deleted`
             })
+    } catch (error) {
+        next(error)
+    }
+})
+
+router.delete('/', async(req,res,next) => {
+    try {
+        const deleteall = await orderItem.destroy({
+            where : req.body
+        })
+
+        res.status(200).send({
+            message : 'success deleting data',
+            deleteall
+        })
     } catch (error) {
         next(error)
     }
